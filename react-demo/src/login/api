@@ -1,0 +1,4 @@
+    @GetMapping("/findByUsername/{username}")
+    public UUID findByUsername(@PathVariable String username) {
+        return userService.getIDBYUsername(username);
+    }

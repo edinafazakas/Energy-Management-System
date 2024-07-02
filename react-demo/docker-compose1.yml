@@ -1,0 +1,78 @@
+version: '3'
+
+services:
+
+  postgres_users:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ems_users
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    volumes:
+      - postgres_data_users:/var/lib/postgresql/data
+      - C:\postgres_container_data:/docker-entrypoint-initdb.d
+
+    networks:
+      - ems_common_network
+
+  spring_test:
+    build: .
+    environment:
+      - DB_IP=postgres_users
+      - DB_NAME=ems_users
+      - DB_USER=postgres
+      - DB_PASSWORD=root
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres_users
+    networks:
+      - ems_common_network
+
+  postgres_devices:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ems_devices
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    volumes:
+      - postgres_data_devices:/var/lib/postgresql/data1
+    networks:
+      - ems_common_network
+
+  spring_test1:
+    build: .
+    environment:
+      - DB_IP=postgres_devices
+      - DB_NAME=ems_devices
+      - DB_USER=postgres
+      - DB_PASSWORD=root
+    ports:
+      - "9090:9090"
+    depends_on:
+      - postgres_devices
+    networks:
+      - ems_common_network
+
+  react:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "3008:3000"
+    environment:
+      - BACKEND=spring_test:8080
+      - BACKEND1=spring_test1:9090
+    depends_on:
+      - spring_test
+      - spring_test1
+    networks:
+      - ems_common_network
+
+networks:
+  ems_common_network:
+    external: true
+
+volumes:
+  postgres_data_users:
+  postgres_data_devices:

@@ -1,0 +1,4 @@
+/* Add this to your CSS file */
+.selected-row {
+    background-color: #007bff; /* Set your desired background color for the selected row */
+}
